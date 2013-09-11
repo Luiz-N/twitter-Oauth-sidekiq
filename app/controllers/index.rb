@@ -1,6 +1,6 @@
 get '/' do
   # @user = session[:user_id]
-    # session.clear
+    session.clear
   if current_user
     @current_user
     p @current_user
@@ -49,6 +49,16 @@ get '/auth' do
 end
 
 
+get '/status' do
+  #return the status of a job to an AJAX call
+  p params
+
+  response = job_is_complete(params["job_id"])
+
+  response.to_s
+
+end
+
 ################ POST ##############################################
 
 post '/grabTweets' do
@@ -71,8 +81,6 @@ post '/grabTweets' do
 end
 
 
-
-
 post '/tweet' do
 
   p params
@@ -88,3 +96,15 @@ post '/tweet' do
 
 
 end
+
+post "/get_job" do
+  
+  user_id = session[:user_id]
+  @user = User.find(user_id)
+  content = params["user"]
+  
+  @user.tweet(content) 
+end
+
+
+

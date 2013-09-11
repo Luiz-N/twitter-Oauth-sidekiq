@@ -10,8 +10,8 @@ class User < ActiveRecord::Base
       content = tweet[:attrs][:text]
       t_created_at = tweet[:attrs][:created_at]
 
-      unless self.tweets.map{|tweet| tweet.id_int }.include?(id_int)
-        self.tweets << Tweet.create(:content => content, :id_int => id_int, :t_created_at => t_created_at)
+      unless self.tweets.map{|tweet| tweet.content }.include?(content)
+        tweets << Tweet.create(:content => content, :id_int => id_int, :t_created_at => t_created_at)
       end
     end
     self.tweets
@@ -21,5 +21,14 @@ class User < ActiveRecord::Base
     p Time.new - (60*60*24)
     self.tweets.nil? ||  self.tweets.order('created_at DESC')[0].created_at < Time.new - (60)
   end
+
+  def tweet(content) #this returns our job id
+    tweet = tweets.create!(:content => content)
+    TweetWorker.perform_async(tweet.id)
+  end
+
+
+
+
 end
 

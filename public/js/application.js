@@ -23,7 +23,8 @@ function grabTweets () {
     $.each(response,function() {
       // console.log(this);
       // console.log(this.tweet.content);
-      $('<li>'+this.tweet.content+'</li>').appendTo('#tweets ul');
+      console.log(typeof(this));
+      $('<li>'+this.content+'</li>').appendTo('#tweets ul');
     });
 
   })
@@ -42,7 +43,7 @@ function grabTweets () {
 
 function sendTweet () {
 
-  tweet = $('form textarea').val();
+  var tweet = $('form textarea').val();
 
   $.ajax({
     url: '/tweet',
@@ -67,11 +68,59 @@ function sendTweet () {
     console.log("complete");
   });
   
+}
+
+function getJobId () {
+  
+  var tweet = $('form textarea').val();
+
+  $.ajax({
+    url: '/get_job',
+    type: 'POST',
+    // dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
+    data: {user: tweet},
+  })
+  .done(function(jid) {
+    console.log("success jid");
+    console.log(jid);
+    checkJob(jid);
+
+  })
+  .fail(function() {
+    console.log("error");
+  })
+  .always(function() {
+    console.log("complete jid");
+
+  });
 
 }
 
-
-
+function checkJob (jid) {
+  $.ajax({
+    url: '/status',
+    type: 'GET',
+    // dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
+    data: {job_id: jid},
+  })
+  .done(function(response) {
+    console.log("success in checkJob");
+    console.log(response);
+    if (response == "false"){
+      setTimeout(checkJob(jid), 5000);
+    }
+    else if(response == "true"){
+      grabTweets();
+    }
+  })
+  .fail(function() {
+    console.log("error");
+  })
+  .always(function() {
+    console.log("complete");
+  });
+  
+}
 
 
 
@@ -85,8 +134,14 @@ $(document).ready(function() {
 
   $('#tweet').click(function(event) {
     event.preventDefault();
-    sendTweet();
+    // sendTweet();
+    // getJobId();
+    getJobId();
+    // for (var i = 10 - 1; i >= 0; i--) {
+    //     getJobId();
+    //    };
   });
 
 
 });
+
